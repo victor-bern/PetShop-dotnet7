@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:latest
+    hostname: "db"
+    ports:
+      - "1433:1433"
+    expose:
+      - 1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Express
+      - SA_PASSWORD=Veteranos1
+
+  vc-platform-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - db
+    entrypoint:
+      [
+        "/wait-for-it.sh",
+        "vc-db:1433",
+        "-t",
+        "10",
+        "--",
+        "dotnet",
+        "PetShop.dll",
+      ]
+
+volumes:
+  dbdata:
